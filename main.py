@@ -1,3 +1,4 @@
+import os
 import argparse
 import numpy as np
 import torch
@@ -16,6 +17,8 @@ def main():
                         help='model to train: STPNet, RNN, or STPRNN (default: STPNet)')
     parser.add_argument('--noise-std', type=float, default=0.0, metavar='N',
                         help='standard deviation of noise (default: 0.0)')
+    parser.add_argument('--syn-tau', type=float, default=6.0, metavar='N',
+                        help='STPNet recovery time constant (default: 6.0)')
     parser.add_argument('--hidden-dim', type=int, default=16, metavar='N',
                         help='hidden dimension of model (default: 16)')
     parser.add_argument('--l2-penalty', type=float, default=0.0, metavar='L2',
@@ -24,6 +27,8 @@ def main():
                         help='weight on positive examples (default: 1.0)')
     parser.add_argument('--seq-length', type=int, default=50000, metavar='N',
                         help='length of each trial (default: 50000)')
+    parser.add_argument('--delay-dur', type=int, default=500, metavar='N',
+                        help='delay duration (default: 500 ms)')
     parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='number of train trial batches (default: 128)')
     parser.add_argument('--epochs', type=int, default=5000, metavar='N',
@@ -49,7 +54,8 @@ def main():
 
     # Create train stimulus generator
     train_generator = StimGenerator(image_set=args.image_set, seed=args.seed,
-                                    batch_size=args.batch_size, seq_length=args.seq_length)
+                                    batch_size=args.batch_size, seq_length=args.seq_length,
+                                    delay_dur=args.delay_dur)
 
     # Get input dimension of feature vector
     input_dim = len(train_generator.feature_dict[0])
@@ -58,10 +64,12 @@ def main():
     if args.model == 'STPNet':
         model = STPNet(input_dim=input_dim,
                        hidden_dim=args.hidden_dim,
+                       syn_tau=args.syn_tau,
                        noise_std=args.noise_std).to(device)
-    if args.model == 'STPRNN':
+    elif args.model == 'STPRNN':
         model = STPRNN(input_dim=input_dim,
                        hidden_dim=args.hidden_dim,
+                       syn_tau=args.syn_tau,
                        noise_std=args.noise_std).to(device)
     elif args.model == 'RNN':
         model = OptimizedRNN(input_dim=input_dim,
@@ -105,8 +113,10 @@ def main():
                 break
 
     # Save trained model
-    save_path = './PARAM/' + args.model + \
-        '/model_train_seed_'+str(args.seed)+'.pt'
+    save_dir = './PARAM/'+args.model
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    save_path = save_dir+'/model_train_seed_'+str(args.seed)+'.pt'
     torch.save({'epoch': epoch,
                 'loss': loss_list,
                 'dprime': dprime_list,

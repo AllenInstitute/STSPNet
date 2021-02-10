@@ -71,7 +71,7 @@ class STPNet(nn.Module):
             hidden = F.relu(self.noise(hidden))
         output = self.linear2(hidden)
 
-        return output, hidden, inputs, input_syn
+        return output, hidden, inputs  # , input_syn
 
 
 # Adapted from: https://mlexplained.com/2019/02/15/building-an-lstm-from-scratch-in-pytorch-lstms-in-depth-part-1/
@@ -214,4 +214,4 @@ class STPRNN(nn.Module):
         hidden = hidden.transpose(0, 1).contiguous()
         output = self.linear(hidden)
 
-        return output, hidden, inputs,   # input_syn
+        return output, hidden, inputs  # , input_syn

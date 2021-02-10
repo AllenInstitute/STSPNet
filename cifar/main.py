@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import argparse
 import torch
 import torch.nn as nn
@@ -64,6 +65,8 @@ def test(args, model, device, test_loader, criterion):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Example')
+    parser.add_argument('--data-dir', type=str, default='',
+                        help='path to CIFAR-10 data directory')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
@@ -92,7 +95,7 @@ def main():
 
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
     train_loader = torch.utils.data.DataLoader(
-        datasets.CIFAR10('/allen/programs/braintv/workgroups/cortexmodels/brianh/data/cifar10', train=True, download=True,
+        datasets.CIFAR10(args.data_dir, train=True, download=True,
                          transform=transforms.Compose([
                              transforms.Grayscale(),
                              transforms.ToTensor(),
@@ -100,7 +103,7 @@ def main():
                          ])),
         batch_size=args.batch_size, shuffle=True, **kwargs)
     test_loader = torch.utils.data.DataLoader(
-        datasets.CIFAR10('/allen/programs/braintv/workgroups/cortexmodels/brianh/data/cifar10', train=False, download=True,
+        datasets.CIFAR10(args.data_dir, train=False, download=True,
                          transform=transforms.Compose([
                              transforms.Grayscale(),
                              transforms.ToTensor(),
@@ -122,6 +125,8 @@ def main():
     test(args, model, device, test_loader, test_criterion)
 
     if (args.save_model):
+        if not os.path.exists('models'):
+            os.makedirs('models')
         torch.save(model.state_dict(),
                    "models/cifar_cnn_"+str(args.seed)+".pt")
 

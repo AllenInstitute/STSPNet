@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import argparse
 import pickle
 import numpy as np
@@ -112,6 +113,8 @@ def main():
         output = model(images.to(device))
 
         # Save output as numpy file
+        if not os.path.exists('features'):
+            os.makedirs('features')
         np.save('features/image_set_cnn_'+ofile+'_seed_' +
                 str(args.seed)+'.npy', output.data.cpu().numpy())
 

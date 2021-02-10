@@ -91,15 +91,16 @@ def test(args, device, test_generator, model):
         output, hidden, input_syn = model(inputs)
         # output, hidden, inputs, input_syn = model(inputs)
 
-    #####
     # __import__("pdb").set_trace()
     # from matplotlib.ticker import FormatStrFormatter
 
     # trial = 0
-    # idx = [11, 4, 27]
+    # # idx = [11, 4, 27]
+    # idx = [1, 6, 7]  # RNN
 
     # # extract inputs, synaptic efficacies, and image identities
-    # inp_array = inputs[trial, :, idx].data.cpu().numpy().T
+    # # inp_array = inputs[trial, :, idx].data.cpu().numpy().T
+    # inp_array = hidden[trial, :, idx].data.cpu().numpy().T  # RNN
     # syn_array = input_syn[trial, :, idx].data.cpu().numpy().T
     # img_index = np.arange(0, 200, 3)
     # img_array = image[trial, img_index]
@@ -108,8 +109,8 @@ def test(args, device, test_generator, model):
     # for i, (id, a, inp, syn) in enumerate(zip(idx, ax.T, inp_array, syn_array)):
 
     #     # plot
-    #     a[0].scatter(img_index, np.ones_like(img_index)
-    #                  * 2.75, marker='.', c=img_array, cmap='viridis')
+    #     # a[0].scatter(img_index, np.ones_like(img_index)
+    #     #              * 2.75, marker='.', c=img_array, cmap='viridis')
     #     a[0].plot(inp, color='mediumblue')
     #     a[1].plot(syn, color='k')
     #     a[2].plot(inp*syn, color='mediumblue', alpha=0.7)
@@ -117,14 +118,16 @@ def test(args, device, test_generator, model):
     #     # minor formatting
     #     a[0].set_xticklabels([])
     #     a[0].yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
-    #     a[0].set_ylim([0, 3])
+    #     # a[0].set_ylim([0, 3])
+    #     a[0].set_ylim([0, 5])  # RNN
     #     a[1].set_xticklabels([])
     #     a[1].set_ylim([0, 1])
     #     a[2].set_xlabel('Time step', fontsize=14)
     #     a[2].set_ylim([0, 2.5])
 
     #     if i == 0:
-    #         a[0].set_ylabel('Inp. activity (a.u.)', fontsize=14)
+    #         # a[0].set_ylabel('Inp. activity (a.u.)', fontsize=14)
+    #         a[0].set_ylabel('Hid. activity (a.u.)', fontsize=14)  # RNN
     #         a[1].set_ylabel('Syn. efficacy ($\it{x}$)', fontsize=14)
     #         a[2].set_ylabel('Input * $\it{x}$', fontsize=14)
     #     else:
@@ -140,10 +143,10 @@ def test(args, device, test_generator, model):
 
     # # adjust whitespace
     # plt.subplots_adjust(wspace=0.2, hspace=0.2)
-    # plt.savefig('input_syn.png', dpi=300, bbox_inches='tight')
+    # # plt.savefig('input_syn.png', dpi=300, bbox_inches='tight')
+    # plt.savefig('input_rec.png', dpi=300, bbox_inches='tight')  # RNN
 
     # plt.show()
-    #####
 
     # Convert to binary prediction
     output = torch.sigmoid(output)

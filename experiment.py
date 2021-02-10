@@ -1,3 +1,4 @@
+import os
 import argparse
 import numpy as np
 import torch
@@ -18,10 +19,14 @@ def main():
                         help='path to saved model')
     parser.add_argument('--noise-std', type=float, default=0.0, metavar='N',
                         help='standard deviation of noise (default: 0.0)')
+    parser.add_argument('--syn-tau', type=float, default=6.0, metavar='N',
+                        help='STPNet recovery time constant (default: 6.0)')
     parser.add_argument('--hidden-dim', type=int, default=16, metavar='N',
                         help='hidden dimension of model (default: 16)')
     parser.add_argument('--seq-length', type=int, default=50000, metavar='N',
                         help='length of each trial (default: 50000)')
+    parser.add_argument('--delay-dur', type=int, default=500, metavar='N',
+                        help='delay duration (default: 500 ms)')
     parser.add_argument('--batch-size', type=int, default=128, metavar='N',
                         help='number of test trial batches (default: 128)')
     parser.add_argument('--omit-frac', type=float, default=0.0, metavar='O',
@@ -42,7 +47,7 @@ def main():
     # Create test stimulus generator
     test_generator = StimGenerator(image_set=args.image_set, seed=args.seed,
                                    batch_size=args.batch_size, seq_length=args.seq_length,
-                                   omit_frac=args.omit_frac)
+                                   delay_dur=args.delay_dur, omit_frac=args.omit_frac)
 
     # Get input dimension of feature vector
     input_dim = len(test_generator.feature_dict[0])
@@ -51,10 +56,12 @@ def main():
     if args.model == 'STPNet':
         model = STPNet(input_dim=input_dim,
                        hidden_dim=args.hidden_dim,
+                       syn_tau=args.syn_tau,
                        noise_std=args.noise_std).to(device)
     elif args.model == 'STPRNN':
         model = STPRNN(input_dim=input_dim,
                        hidden_dim=args.hidden_dim,
+                       syn_tau=args.syn_tau,
                        noise_std=args.noise_std).to(device)
     elif args.model == 'RNN':
         model = OptimizedRNN(input_dim=input_dim,
@@ -111,7 +118,9 @@ def main():
                                                      post_omitted_flashes[1]].sum().float() / len(post_omitted_flashes[0])).item()
 
     import pickle
-    save_path = './RESULT/STPRNN/'
+    save_path = './RESULT/'+args.model
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     pickle.dump(results_dict, open(
         save_path + "_".join([args.model, args.image_set, str(args.seed)])+'.pkl', 'wb'), protocol=2)
 

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source activate pytorch-latest
-
 seed_arr=($(seq 1 1 10))
 
 # test
