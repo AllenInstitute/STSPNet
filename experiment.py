@@ -90,10 +90,9 @@ def main():
     results_dict['labels'] = labels.cpu().numpy()
 
     # Compute confusion matrix
-    response_matrix, total_matrix, confusion_matrix = compute_confusion_matrix(test_generator.num_images,
-                                                                               labels,
-                                                                               image,
-                                                                               pred)
+    response_matrix, total_matrix, confusion_matrix = compute_confusion_matrix(test_generator.num_images, labels,
+                                                                               image, pred,
+                                                                               test_generator.image_steps+test_generator.delay_steps)
 
     results_dict['response_matrix'] = response_matrix
     results_dict['total_matrix'] = total_matrix
@@ -121,8 +120,8 @@ def main():
     save_path = './RESULT/'+args.model
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    pickle.dump(results_dict, open(
-        save_path + "_".join([args.model, args.image_set, str(args.seed)])+'.pkl', 'wb'), protocol=2)
+    pickle.dump(results_dict, open(os.path.join(save_path, "_".join(
+        [args.model, args.image_set, str(args.seed)])+'.pkl'), 'wb'), protocol=2)
 
 
 if __name__ == '__main__':

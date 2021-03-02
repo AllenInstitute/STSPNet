@@ -34,7 +34,7 @@ class StimGenerator:
         self.feature_dict, self.num_images = self.load_image_features()
 
         # Number of steps to mask loss
-        self.mask_steps = 12
+        self.mask_steps = 4*(self.image_steps + self.delay_steps)
 
     def load_image_features(self):
         """
